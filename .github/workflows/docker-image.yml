@@ -2,9 +2,9 @@ name: Docker Image CI  # Workflow name
 
 on:
   push:
-    branches: ["main"]  # Trigger on pushes to main branch
+    branches: ["test"]  # Trigger on pushes to main branch
   pull_request:
-    branches: ["main"]  # Trigger on PRs targeting main branch
+    branches: ["test"]  # Trigger on PRs targeting main branch
 
 jobs:
   build-order-service:  # Job name 
