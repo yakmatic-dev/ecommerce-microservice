@@ -1,1 +1,2 @@
 docker-compose.yml
+frontend-app/.env.local
