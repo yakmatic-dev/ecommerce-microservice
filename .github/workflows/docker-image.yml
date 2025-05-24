@@ -1,20 +1,35 @@
-name: Docker Image ci
+name: Docker Image CI  # name 
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main"]  # Triggers on pushes to main branch
   pull_request:
-    branches: ["test"]
+    branches: ["main"]  # Triggers on PRs to main branch 
 
 jobs:
-  build:
+  build_order_services:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
-
+      uses: actions/checkout@v4  
+      
     - name: Build Docker image
-      working-directory: ./order-service  # Simplified directory navigation
+      working-directory: ./order-service  # working directory of order services
       run: |
-        docker build -t order-services:v1 .
+        docker build -t order-services:v1 .  # build the image of order services
+
+  build_product_service:  
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build Docker image
+      working-directory: ./product-service  # working directory of product services
+      run: |
+        docker build -t product-services:v1 .  #build the image of product services
+
+  build_user_service:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build Docker image
+      working-directory: ./user-service  
+      run: |
+        docker build -t user-services:v1 .   #build the image of user services
