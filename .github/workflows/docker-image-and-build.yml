@@ -1,0 +1,93 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-order-service:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and Push Docker image
+      working-directory: ./order-service
+      run: |
+        # Generate timestamp (UTC time)
+        TIMESTAMP=$(date +'%Y-%m-%d_%H')
+        
+        # Build with 3 tags: SHA, latest, and datetime
+        docker build \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/order-service:${{ github.sha }} \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/order-service:latest \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/order-service:$TIMESTAMP .
+
+        # Always push SHA-tagged image
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/order-service:${{ github.sha }}
+
+        # Push latest + datetime only for main branch
+        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/order-service:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/order-service:$TIMESTAMP
+        fi
+
+  build-product-service:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and Push Docker image
+      working-directory: ./product-service
+      run: |
+        TIMESTAMP=$(date +'%Y-%m-%d_%H')
+        docker build \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/product-service:${{ github.sha }} \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/product-service:latest \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/product-service:$TIMESTAMP .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/product-service:${{ github.sha }}
+        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/product-service:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/product-service:$TIMESTAMP
+        fi
+
+  build-user-service:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and Push Docker image
+      working-directory: ./user-service
+      run: |
+        TIMESTAMP=$(date +'%Y-%m-%d_%H')
+        docker build \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/user-service:${{ github.sha }} \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/user-service:latest \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/user-service:$TIMESTAMP .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/user-service:${{ github.sha }}
+        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/user-service:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/user-service:$TIMESTAMP
+        fi
