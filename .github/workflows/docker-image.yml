@@ -1,35 +1,41 @@
-name: Docker Image CI  # name 
+name: Docker Image CI  # Workflow name
 
 on:
   push:
-    branches: ["main"]  # Triggers on pushes to main branch
+    branches: ["main"]  # Trigger on pushes to main branch
   pull_request:
-    branches: ["main"]  # Triggers on PRs to main branch 
+    branches: ["main"]  # Trigger on PRs targeting main branch
 
 jobs:
-  build_order_services:
+  build-order-service:  # Job name 
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4  
-      
-    - name: Build Docker image
-      working-directory: ./order-service  # working directory of order services
-      run: |
-        docker build -t order-services:v1 .  # build the image of order services
+      uses: actions/checkout@v4  # Required for all jobs
 
-  build_product_service:  
+    - name: Build Docker image
+      working-directory: ./order-service  # Order service directory
+      run: |
+        docker build -t order-services:v1-${{ github.sha }} .  # Unique tag with commit SHA
+
+  build-product-service:  
     runs-on: ubuntu-latest
     steps:
-    - name: Build Docker image
-      working-directory: ./product-service  # working directory of product services
-      run: |
-        docker build -t product-services:v1 .  #build the image of product services
+    - name: Checkout repository  # checkout repo
+      uses: actions/checkout@v4
 
-  build_user_service:
+    - name: Build Docker image
+      working-directory: ./product-service  # Product service directory
+      run: |
+        docker build -t product-services:v1-${{ github.sha }} .  # build  & Unique versioned tag
+
+  build-user-service:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout repository  # checkout repo
+      uses: actions/checkout@v4
+
     - name: Build Docker image
-      working-directory: ./user-service  
+      working-directory: ./user-service  # User service directory
       run: |
-        docker build -t user-services:v1 .   #build the image of user services
+        docker build -t user-services:v1-${{ github.sha }} .  # building and versioned tag
